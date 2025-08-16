@@ -19,30 +19,21 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+`cp example.env .env` to setup out environemt.
+You need to set an API key in order to run the AIS position reports API. 
+Head to https://aisstream.io/ and get yourself an API Key then edit `.env` to set the `AIS_STREAM_API_KEY`.
+
 You also need to run services such as Apache Kafka and Airflow.
 In another terminal run `docker compose up`
 
 You can use the kafka-ui by browsing to http://localhost:8080/ui/clusters/ais/all-topics
 
-You need to set an API key in order to run the AIS position reports API. 
-Head to https://aisstream.io/ and get yourself an API Key then
-`cp example.env .env` and set the API key.
 
 ## Producers
 
 These processes send events to a Kafka queues.
+
+### AIS Producer
 Inside a virtual environment run `python producers/ais_stream_producer`.
-
-
-# Deployment
-
-
-## Docker
-
-To start the application, use `docker compose up`.
-
-## Producers
-
-### AIS Stream producer
-This listenes to AIS socker and sends events to a kafka queue
+This will start sending AIS Position reports to a queue
 
