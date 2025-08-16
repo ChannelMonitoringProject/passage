@@ -5,9 +5,35 @@ This is an airflow pipeline that consolidates and ingest data on channel crossin
 It utilises Kafka queues to collect streaming data and airflow for batch processing.
 Flask and plotly provides an API to visualise the information collected. 
 
-# Deployment
+# Setup
 
-## Docker
+## Development environment
 
-To start the application, use `docker compose up`.
+To run the application in development mode, you need to setup a python virtual environment and install the dependencies
+Install python virtualenv using your package manager, for example `apt install python3-virtualenv`, then:
+
+From the project's root directory
+```bash
+virtualenv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+`cp example.env .env` to setup out environemt.
+You need to set an API key in order to run the AIS position reports API. 
+Head to https://aisstream.io/ and get yourself an API Key then edit `.env` to set the `AIS_STREAM_API_KEY`.
+
+You also need to run services such as Apache Kafka and Airflow.
+In another terminal run `docker compose up`
+
+You can use the kafka-ui by browsing to http://localhost:8080/ui/clusters/ais/all-topics
+
+
+## Producers
+
+These processes send events to a Kafka queues.
+
+### AIS Producer
+Inside a virtual environment run `python producers/ais_stream_producer`.
+This will start sending AIS Position reports to a queue
 
