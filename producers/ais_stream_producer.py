@@ -1,5 +1,6 @@
 """ A producer for AIS Stream """
 import os
+import logging
 import websocket
 import json
 from dotenv import load_dotenv
@@ -7,6 +8,8 @@ import rel
 from kafka import KafkaProducer
 
 load_dotenv()
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
 
 API_KEY = os.environ.get("AIS_STREAM_API_KEY")
 KAFKA_HOST = os.environ.get("KAFKA_HOST")
@@ -20,6 +23,7 @@ producer = KafkaProducer(
 
 
 def on_open(ws):
+    logging.info("Subscribing to AIS Stream feed")
     subscribe_message = {
         "APIKey": API_KEY,
         "BoundingBoxes": arena,
@@ -32,16 +36,18 @@ def on_open(ws):
 
 
 def on_message(ws, message):
-    print(message)
+    logging.info(str(message) + "\n")
     data = json.loads(message)
     producer.send("ais.updates", data)
 
 
 def on_error(ws, error):
+    logging.error("Socket Error: ")
     pass
 
 
 def on_close(ws, close_status_code, close_msg):
+    logging.error("Closing Socket: ", close_status_code, " - ", close_msg)
     pass
 
 
@@ -54,8 +60,9 @@ def main():
         on_error=on_error,
         on_close=on_close,
     )
-    ws.run_forever(dispatcher=rel, reconnect=5)
+
     rel.signal(2, rel.abort)
+    ws.run_forever(dispatcher=rel, reconnect=5)
     rel.dispatch()
 
 
