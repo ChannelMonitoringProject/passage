@@ -10,7 +10,7 @@ Flask and plotly provides an API to visualise the information collected.
 ## Development environment
 
 To run the application in development mode, you need to setup a python virtual environment and install the dependencies
-Install python virtualenv using your package manager, for example `apt install python3-virtualenv/`, then:
+Install python virtualenv using your package manager, for example `apt install python3-virtualenv`, then:
 
 From the project's root directory
 ```bash
