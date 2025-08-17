@@ -41,5 +41,5 @@ This will start sending AIS Position reports to a queue
 
 ### AIS Redis consumer
 Stream incoming events from kafka ais updates queue into redis
-`python consumers/ais_stream-redis-consumer.py`
+`python consumers/ais_stream_redis_consumer.py`
 
