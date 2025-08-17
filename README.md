@@ -23,7 +23,7 @@ pip install -r requirements.txt
 You need to set an API key in order to run the AIS position reports API. 
 Head to https://aisstream.io/ and get yourself an API Key then edit `.env` to set the `AIS_STREAM_API_KEY`.
 
-You also need to run services such as Apache Kafka and Airflow.
+You also need to run services such as Apache Kafka and Airflow. As well as postgres and redis.
 In another terminal run `docker compose up`
 
 You can use the kafka-ui by browsing to http://localhost:8080/ui/clusters/ais/all-topics
@@ -34,6 +34,12 @@ You can use the kafka-ui by browsing to http://localhost:8080/ui/clusters/ais/al
 These processes send events to a Kafka queues.
 
 ### AIS Producer
-Inside a virtual environment run `python producers/ais_stream_producer`.
+Inside a virtual environment run `python producers/ais_stream_producer.py`.
 This will start sending AIS Position reports to a queue
+
+## Consumers
+
+### AIS Redis consumer
+Stream incoming events from kafka ais updates queue into redis
+`python consumers/ais_stream-redis-consumer.py`
 
