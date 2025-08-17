@@ -10,6 +10,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis/redis-stack
+    ports:
+      - "127.0.0.1:6379:6379"
+
   broker:
     image: apache/kafka:latest
     container_name: kafka
