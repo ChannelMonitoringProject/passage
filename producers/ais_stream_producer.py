@@ -38,7 +38,11 @@ def on_open(ws):
 def on_message(ws, message):
     logging.info(str(message) + "\n")
     data = json.loads(message)
-    producer.send("ais.updates", data)
+    if "PositionReport" in data["Message"]:
+        logging.info(
+            "Adding a position report to redis ais.updates.boat_position_reports"
+        )
+        producer.send("ais.updates.boat_position_reports", data)
 
 
 def on_error(ws, error):
