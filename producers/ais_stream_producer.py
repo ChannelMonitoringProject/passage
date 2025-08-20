@@ -13,6 +13,9 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
 
 API_KEY = os.environ.get("AIS_STREAM_API_KEY")
 KAFKA_HOST = os.environ.get("KAFKA_HOST")
+REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
+    "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
+)
 arena = json.loads(str(os.environ.get("AIS_STREAM_ARENA")))
 
 producer = KafkaProducer(
@@ -42,7 +45,7 @@ def on_message(ws, message):
         logging.info(
             "Adding a position report to redis ais.updates.boat_position_reports"
         )
-        producer.send("ais.updates.boat_position_reports", data)
+        producer.send(REDIS_BOAT_POSITION_REPORT_TOPIC, data)
 
 
 def on_error(ws, error):

@@ -12,7 +12,9 @@ r = redis.Redis(host="localhost", port=6379, db=0)
 
 MAX_POINTS = 5000
 KAFKA_HOST = os.environ.get("KAFKA_HOST")
-TOPIC = "ais.updates.boat_position_reports"
+REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
+    "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
+)
 
 consumer = KafkaConsumer(
     TOPIC,
