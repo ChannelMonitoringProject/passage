@@ -8,17 +8,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
-r = redis.Redis(host="localhost", port=6379, db=0)
 
-MAX_POINTS = 5000
 KAFKA_HOST = os.environ.get("KAFKA_HOST")
+MAX_POINTS = 5000
 KAFKA_AIS_TOPIC = "ais.updates"
 
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
+
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
 
 consumer = KafkaConsumer(
     KAFKA_AIS_TOPIC,
