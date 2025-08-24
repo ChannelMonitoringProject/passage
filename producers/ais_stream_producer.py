@@ -1,4 +1,4 @@
-""" A producer for AIS Stream """
+""" Pushes events from AIS Stream into Kafka """
 import os
 import logging
 import websocket
@@ -13,6 +13,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
 
 API_KEY = os.environ.get("AIS_STREAM_API_KEY")
 KAFKA_HOST = os.environ.get("KAFKA_HOST")
+KAFKA_AIS_TOPIC = "ais.updates"
 arena = json.loads(str(os.environ.get("AIS_STREAM_ARENA")))
 
 producer = KafkaProducer(
@@ -38,7 +39,7 @@ def on_open(ws):
 def on_message(ws, message):
     logging.info(str(message) + "\n")
     data = json.loads(message)
-    producer.send("ais.updates", data)
+    producer.send(KAFKA_AIS_TOPIC, data)
 
 
 def on_error(ws, error):
@@ -52,6 +53,8 @@ def on_close(ws, close_status_code, close_msg):
 
 
 def main():
+    logging.info("Polling for AISStream events")
+    logging.info("Pushing {KAFKA_AIS_TOPIC} events to Kafka host {KAFKA_HOST}")
     url = "wss://stream.aisstream.io/v0/stream"
     ws = websocket.WebSocketApp(
         url,

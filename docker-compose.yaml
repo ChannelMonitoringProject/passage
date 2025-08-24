@@ -1,5 +1,7 @@
 services:
   postgres:
+    container_name: postgres
+    hostname: postgres
     image: postgres:latest
     environment:
       POSTGRES_USER: airflow
@@ -11,13 +13,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
+    container_name: redis
+    hostname: redis
     image: redis/redis-stack
     ports:
       - "127.0.0.1:6379:6379"
 
-  broker:
+  kafka:
     image: apache/kafka:latest
     container_name: kafka
+    hostname: kafka
     
     environment:
       KAFKA_NODE_ID: 1
@@ -42,6 +47,13 @@ services:
       - 9092:9092
       - 9093:9093
 
+    healthcheck:
+        test: "/opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka:9093 || exit 1"
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
@@ -53,6 +65,19 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
     # volumes:
     #   - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
+
+
+  kafka-producers:
+    hostname: kafka-producers
+    container_name: kafka-producers
+    build: producers
+    environment:
+      KAFKA_HOST: kafka:9093
+      REDIS_HOST: redis
+      LOGLEVEL: DEBUG
+    depends_on:
+      kafka:
+        condition: service_healthy
 
 #   zookeeper:
 #     image: confluentinc/cp-zookeeper:latest
