@@ -1,0 +1,5 @@
+python-dotenv==1.1.1
+redis==6.4.0
+kafka-python==2.2.15
+
+
