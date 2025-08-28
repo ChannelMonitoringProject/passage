@@ -9,9 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
 
+
 KAFKA_HOST = os.environ.get("KAFKA_HOST", "localhost:9092")
 MAX_POINTS = 5000
 KAFKA_AIS_TOPIC = os.environ.get("KAFKA_AIS_TOPIC", "ais.updates")
+
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
