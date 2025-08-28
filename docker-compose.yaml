@@ -17,7 +17,9 @@ services:
     hostname: redis
     image: redis/redis-stack
     ports:
-      - "127.0.0.1:6379:6379"
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
 
   kafka:
     image: apache/kafka:latest
@@ -70,14 +72,36 @@ services:
   kafka-producers:
     hostname: kafka-producers
     container_name: kafka-producers
-    build: producers
+    build: 
+      context: ./
+      dockerfile: ./producers/Dockerfile
+    environment:
+      KAFKA_HOST: kafka:9093
+      LOGLEVEL: DEBUG
+      AIS_STREAM_API_KEY: ${AIS_STREAM_API_KEY}
+      AIS_STREAM_ARENA: ${AIS_STREAM_ARENA}
+      KAFKA_AIS_TOPIC: ${KAFKA_AIS_TOPIC}
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  kafka-redis-consumers:
+    hostname: kafka-redis-consumers
+    container_name: kafka-redis-consumers
+    build: 
+      context: ./
+      dockerfile: ./consumers/Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       KAFKA_HOST: kafka:9093
       REDIS_HOST: redis
       LOGLEVEL: DEBUG
-    depends_on:
-      kafka:
-        condition: service_healthy
+      KAFKA_AIS_TOPIC: ${KAFKA_AIS_TOPIC}
+      REDIS_BOAT_POSITION_REPORT_TOPIC: ${REDIS_BOAT_POSITION_REPORT_TOPIC}
 
 #   zookeeper:
 #     image: confluentinc/cp-zookeeper:latest
