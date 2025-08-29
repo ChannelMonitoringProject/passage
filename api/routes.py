@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 import redis, json
-from .plotter import generate_plot
+from .plotter import generate_ais_plot
 
 bp = Blueprint("api", __name__)
 r = redis.Redis(host="localhost", port=6379, db=0)
