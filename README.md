@@ -1,11 +1,25 @@
 # passage
 **Pipeline for Assessing Safety at Sea, Alerting, and Gathering Evidence**
 
-This is an airflow pipeline that consolidates and ingest data on channel crossings.
-It utilises Kafka queues to collect streaming data and airflow for batch processing.
-Flask and plotly provides an API to visualise the information collected. 
+This is an airflow pipeline that consolidates and ingest data on channel crossings from multiple sources.
+It  will collect positioning, search and rescue and weather data for alerting and future analysis.
+
+
+## Overview
+This utilises Kafka queues to collect streaming data.
+It will use Airflow for Batch processing.
+It uses Redis for streaming data and it will use Postgres for storage.
+Flask and plotly will provide an API to visualise the information collected. 
 
 # Setup
+## Docker
+
+`cp example.env .env` to setup out environemt.
+You need to set an API key in order to run the AIS position reports API. 
+Head to https://aisstream.io/ and get yourself an API Key then edit `.env` to set the `AIS_STREAM_API_KEY`.
+
+then run `docker compose up`
+
 
 ## Development environment
 
@@ -18,16 +32,10 @@ virtualenv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-
-`cp example.env .env` to setup out environemt.
-You need to set an API key in order to run the AIS position reports API. 
-Head to https://aisstream.io/ and get yourself an API Key then edit `.env` to set the `AIS_STREAM_API_KEY`.
-
-You also need to run services such as Apache Kafka and Airflow. As well as postgres and redis.
-In another terminal run `docker compose up`
-
 You can use the kafka-ui by browsing to http://localhost:8080/ui/clusters/ais/all-topics
 
+you can run the flask appliction by running 
+`flask --app api`
 
 ## Producers
 
