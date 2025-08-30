@@ -1,15 +1,20 @@
 from flask import Blueprint, jsonify
 import redis, json
-from .plotter import generate_ais_plot
+from .plotter import plot_state
 
 bp = Blueprint("api", __name__)
-r = redis.Redis(host="localhost", port=6379, db=0)
 
 
-@bp.route("/ais/latest-plot")
-def latest_plot():
-    raw_msgs = r.lrange("ais:latest", 0, 99)  # last 100
-    data = [json.loads(m) for m in raw_msgs]
+@bp.route("/api/")
+def api_home():
+    return jsonify({})
 
-    fig = generate_plot(data)
-    return jsonify(fig)
+
+@bp.route("/api/graphs/ais/boat_positions")
+def boat_positions_graphs():
+    fig = plot_state()
+    fig_dict = json.loads(fig.to_json())
+
+    # return jsonify(fig)
+    return jsonify(fig_dict)
+    # return fig
