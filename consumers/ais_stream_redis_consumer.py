@@ -32,8 +32,10 @@ consumer = KafkaConsumer(
 
 
 def generate_id(mmsi: int, boat_name: str) -> str:
+    """Returns an id, "topic:mmsi:ship_name:uuid" """
     name = boat_name.strip().replace(" ", "_").lower()
-    ret = f"{mmsi}:{name}:{uuid.uuid4()}"
+    topic = REDIS_BOAT_POSITION_REPORT_TOPIC
+    ret = f"{topic}:{mmsi}:{name}:{uuid.uuid4()}"
     logging.info(f"Redis record ID: {ret}")
     return ret
 
