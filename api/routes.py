@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-import redis, json
+import json
 from .plotter import plot_state
 
 bp = Blueprint("api", __name__)
