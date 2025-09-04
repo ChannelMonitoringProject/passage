@@ -7,8 +7,8 @@ import logging
 
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
-REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
-REDIS_DB = os.environ.get("REDIS_DB", "1")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+REDIS_DB = int(os.environ.get("REDIS_DB", 0))
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
@@ -16,7 +16,7 @@ AIS_STREAM_ARENA = os.environ.get(
     "AIS_STREAM_ARENA", "[[[51.385, 0.909], [50.678, 2.667]]]"
 )
 
-redis_client = redis.Redis(host=REDIS_HOST, port=int(REDIS_PORT), db=int(REDIS_DB))
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 
 def get_arena():
@@ -52,7 +52,8 @@ def get_state():
     Get all state elements from redis
     """
     ret = []
-    state = redis_client.scan_iter("state:*")
+    print(redis_client.keys())
+    state = redis_client.scan_iter("ais.updates.boat_position_reports:*")
     for state_entry_key in state:
         state_entry = redis_client.json().get(state_entry_key)
         ret.append(state_entry)
@@ -64,8 +65,10 @@ def get_state_boat_position_reports():
     Get BoatPositionReports from redis state
     """
     ret = []
-    state = redis_client.scan_iter(REDIS_BOAT_POSITION_REPORT_TOPIC)
+    state = redis_client.scan_iter(REDIS_BOAT_POSITION_REPORT_TOPIC + ":*")
+    print(state)
     for position_report_key in state:
+        print(position_report_key)
         position_report = redis_client.json().get(position_report_key)
         ret.append(position_report)
     return ret
