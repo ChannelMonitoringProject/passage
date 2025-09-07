@@ -22,7 +22,7 @@ REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
 
-r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 consumer = KafkaConsumer(
     KAFKA_AIS_TOPIC,
