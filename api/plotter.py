@@ -4,6 +4,7 @@ from collections import defaultdict
 import plotly.graph_objects as go
 import redis
 import logging
+from .utils import redis_helper
 
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
@@ -53,6 +54,8 @@ def get_state():
     """
     ret = []
     print(redis_client.keys())
+
+    # state = redis_helper.get_ais_state()
     state = redis_client.scan_iter("ais.updates.boat_position_reports:*")
     for state_entry_key in state:
         state_entry = redis_client.json().get(state_entry_key)
