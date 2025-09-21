@@ -6,6 +6,8 @@ import redis
 import logging
 from .utils import redis_helper
 
+# redis_helper.create_index()
+
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
@@ -54,9 +56,9 @@ def get_state():
     """
     ret = []
     print(redis_client.keys())
-
-    # state = redis_helper.get_ais_state()
-    state = redis_client.scan_iter("ais.updates.boat_position_reports:*")
+    state = redis_helper.get_ais_state()
+    print(state)
+    # state = redis_client.scan_iter("ais.updates.boat_position_reports:*")
     for state_entry_key in state:
         state_entry = redis_client.json().get(state_entry_key)
         ret.append(state_entry)
@@ -68,13 +70,15 @@ def get_state_boat_position_reports():
     Get BoatPositionReports from redis state
     """
     ret = []
-    state = redis_client.scan_iter(REDIS_BOAT_POSITION_REPORT_TOPIC + ":*")
+    # state = redis_client.scan_iter(REDIS_BOAT_POSITION_REPORT_TOPIC + ":*")
+    state = redis_helper.get_ais_state()
     print(state)
-    for position_report_key in state:
-        print(position_report_key)
-        position_report = redis_client.json().get(position_report_key)
-        ret.append(position_report)
-    return ret
+    # for position_report_key in state:
+    #    print(position_report_key)
+    #     position_report = redis_client.json().get(position_report_key)
+    #     ret.append(position_report)
+    # return ret
+    return state
 
 
 def to_defaultdict(list_of_dicts):
