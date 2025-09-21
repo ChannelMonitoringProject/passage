@@ -122,25 +122,25 @@ services:
 #       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
 #       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 # 
-#   airflow:
-#     image: apache/airflow:latest
-#     depends_on:
-#       - postgres
-#     environment:
-#       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-#       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-#       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-#     volumes:
-#       - ./dags:/opt/airflow/dags
-#     ports:
-#       - "8080:8080"
-#     command: >
-#       bash -c "
-#         airflow db migrate &&
-#         airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com &&
-#         airflow webserver &
-#         airflow scheduler
-#       "
+
+  airflow:
+    image: apache/airflow:3.1.0b2-python3.13
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./airflow.cfg:/opt/airflow/airflow.cfg
+    ports:
+      - "9081:8080"
+    command: >
+      bash -c "\
+        airflow db migrate && \
+        airflow api-server & \
+        airflow scheduler"
 
 volumes:
   postgres_data:
