@@ -7,10 +7,13 @@ from redis.commands.search.field import TextField, NumericField, TagField
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 import redis.exceptions
+from dotenv import load_dotenv
+
+load_dotenv()
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-REDIS_DB = int(os.environ.get("REDIS_DB", 0))
+REDIS_DB = int(os.environ.get("REDIS_DB", 1))
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
@@ -41,6 +44,7 @@ def get_ais_state():
         "@mmsi", reducers.count().alias("count")
     )
 
+    # aggResult = r.ft("idx:boats").aggregate(req).rows
     aggResult = r.ft("idx:boats").aggregate(req).rows
     print(aggResult)
 
