@@ -7,5 +7,6 @@ RUN apt-get update \
   && apt-get autoremove -yqq --purge \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-RUN pip3 install kafka-python==2.2.15
+COPY ./requirements.docker.txt requirements.txt
+RUN pip3 install -r requirements.txt
 USER airflow
