@@ -14,12 +14,21 @@ Flask and plotly will provide an API to visualise the information collected.
 # Setup
 ## Docker
 
-`cp example.env .env` to setup out environemt.
+### Development docker setup
+The docker environment is defined in `./infra/dev`. You will need to configure a few environment variables in a .env file
+
+`cd infra/dev; cp example.env .env` to setup out environemt.
+
 You need to set an API key in order to run the AIS position reports API. 
-Head to https://aisstream.io/ and get yourself an API Key then edit `.env` to set the `AIS_STREAM_API_KEY`.
+Head to https://aisstream.io/ and get yourself an API Key then edit `.env` file to set the `AIS_STREAM_API_KEY` to match your API key.
 
 then run `docker compose up`
 
+### Staging
+Not implemneted yet 
+
+### Production
+Not implemneted yet 
 
 ## Development environment
 
