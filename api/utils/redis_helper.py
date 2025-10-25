@@ -1,4 +1,6 @@
 import os
+import logging
+
 import redis
 from redis.commands.json.path import Path
 import redis.commands.search.aggregation as aggregations
@@ -48,7 +50,7 @@ def create_index():
 def create_index_if_missing():
     try:
         r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).info()
-    except redis.exceptions.ResponseError() as rerr:
+    except redis.exceptions.ResponseError as rerr:
         logging.info(f"No index {REDIS_BOAT_POSITION_REPORT_INDEX} found, creating")
         create_index()
 
