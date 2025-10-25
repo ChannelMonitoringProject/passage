@@ -26,3 +26,18 @@ def test_redis_ais_position_report_query():
     # redis_helper.create_index()
     redis_helper.get_ais_state()
     assert False
+
+
+def test_create_position_reports_index():
+    try:
+        print("trying to drop the position_reports_index")
+        r.ft("position_reports_index").dropindex(True)
+    except redis.exceptions.ResponseError:
+        print("No index")
+
+    redis_helper.create_index()
+    assert False
+
+
+def test_drop_index():
+    assert False
