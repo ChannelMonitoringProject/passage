@@ -1,5 +1,6 @@
 """ Consumers events from kafka and update redis """
 import os
+import datetime
 import uuid
 import logging
 from kafka import KafkaConsumer
@@ -41,6 +42,18 @@ def generate_id(mmsi: int, boat_name: str) -> str:
     return ret
 
 
+def generate_timestamp(time_utc: str) -> int:
+    """Converts a datetime string to integer, drop microseconds"""
+    time_utc = time_utc[0:19]
+    unix_time = datetime.datetime.strptime(time_utc, "%Y-%m-%d %H:%M:%S").timestamp()
+    return int(unix_time)
+
+
+def generate_position(lat: float, lon: float):
+    """Puts lat and lon in a way GeoRedis likes"""
+    return f"{lat} {lon}"
+
+
 def store_record(record):
     payload = record.value
     if "PositionReport" in payload["Message"]:
@@ -51,6 +64,13 @@ def store_record(record):
         mmsi = meta["MMSI"]
         boat_name = meta["ShipName"]
         entry_id = generate_id(mmsi, boat_name)
+
+        # Add keys to help redis indexing
+        time_utc = meta["time_utc"]
+        payload["MetaData"]["unix_time"] = generate_timestamp(time_utc)
+        payload["MetaData"]["position"] = generate_position(
+            meta["latitude"], meta["longitude"]
+        )
         r.json().set(entry_id, "$", payload)
 
 
