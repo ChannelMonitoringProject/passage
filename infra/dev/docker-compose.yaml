@@ -179,6 +179,11 @@ services:
       AIS_STREAM_API_KEY: ${AIS_STREAM_API_KEY}
       AIS_STREAM_ARENA: ${AIS_STREAM_ARENA}
       KAFKA_AIS_TOPIC: ${KAFKA_AIS_TOPIC}
+    healthcheck:
+        test: "pgrep -f 'bin/sh -c python ais_stream_producer.py' || exit 1"
+        interval: 30s
+        timeout: 10s
+        retries: 5
     depends_on:
       kafka:
         condition: service_healthy
@@ -191,6 +196,8 @@ services:
       dockerfile: ./consumers/Dockerfile
     depends_on:
       kafka:
+        condition: service_healthy
+      kafka-producers:
         condition: service_healthy
       redis:
         condition: service_healthy
