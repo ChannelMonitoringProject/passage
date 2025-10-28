@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-REDIS_DB = int(os.environ.get("REDIS_DB", 1))
+REDIS_DB = int(os.environ.get("REDIS_DB", 0))
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
@@ -24,7 +24,11 @@ def test_redis_query():
 
 def test_redis_ais_position_report_query():
     # redis_helper.create_index()
-    redis_helper.get_ais_state()
+    redis_helper.create_index_if_missing()
+    state = redis_helper.get_ais_state()
+    for e in state:
+        print(e)
+    # assert state == []
     assert False
 
 
@@ -36,6 +40,7 @@ def test_create_position_reports_index():
         print("No index")
 
     redis_helper.create_index()
+    r.ft
     assert False
 
 

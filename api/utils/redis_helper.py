@@ -2,6 +2,7 @@ import os
 import logging
 
 import redis
+from redis.commands.search import Search
 from redis.commands.json.path import Path
 import redis.commands.search.aggregation as aggregations
 import redis.commands.search.reducers as reducers
@@ -18,7 +19,7 @@ load_dotenv()
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-REDIS_DB = int(os.environ.get("REDIS_DB", 1))
+REDIS_DB = int(os.environ.get("REDIS_DB", 0))
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
@@ -33,7 +34,7 @@ r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=
 
 def create_index():
     schema = [
-        TextField("$.MetaData.MMSI", as_name="mmsi"),
+        NumericField("$.MetaData.MMSI", as_name="mmsi"),
         TextField("$.MetaData.ShipName", as_name="name"),
         NumericField("$.MetaData.unix_time", as_name="timestamp"),
         GeoField("$.MetaData.position", as_name="position"),
@@ -55,25 +56,23 @@ def create_index_if_missing():
         create_index()
 
 
-def get_ais_state():
-    req = aggregations.AggregateRequest("*").group_by(
-        "@mmsi", reducers.count().alias("count")
-    )
+def get_positioning_averages(start_time, end_time):
+    query = ""
+    search = Search(r, index_name=REDIS_BOAT_POSITION_REPORT_INDEX)
+    request = aggregations.AggregateRequest(query)
 
-    # aggResult = r.ft("idx:boats").aggregate(req).rows
-    aggResult = r.ft("idx:boats").aggregate(req).rows
-    print(aggResult)
 
-    query = Query("*")
-    position_reports = (
-        #        r.ft(f"idx:{REDIS_BOAT_POSITION_REPORT_TOPIC}").search(query).docs
-        r.ft(f"idx:boats")
-        .search(query)
-        .docs
+def get_ais_state(start: int = 0, end: int = 3154118400):
+    q = f"@timestamp:[{start} {end}]"
+    req = aggregations.AggregateRequest(q)
+    req = req.load(*["__key", "@mmsi", "@name", "@timestamp", "position"])
+    # req = req.group_by(["@mmsi", "@name"], reducers.max("timestamp").alias("last_seen"))
+    req = req.group_by(
+        ["@mmsi", "@name"],
+        reducers.max("@timestamp").alias("ts"),
+        reducers.first_value("@position").alias("pos"),
     )
-    print(position_reports)
-    for p in position_reports:
-        print(p)
-    return position_reports
-    # ret = []
-    # return ret
+    req = req.group_by(["@mmsi", "@name", "@ts"])
+    res = r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).aggregate(req).rows
+    logging.debug("aggregated ais state to: ", res)
+    return res

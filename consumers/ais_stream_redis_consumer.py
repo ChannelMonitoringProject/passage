@@ -18,7 +18,7 @@ KAFKA_AIS_TOPIC = os.environ.get("KAFKA_AIS_TOPIC", "ais.updates")
 
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-REDIS_DB = int(os.environ.get("REDIS_DB", 1))
+REDIS_DB = int(os.environ.get("REDIS_DB", 0))
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
@@ -51,7 +51,7 @@ def generate_timestamp(time_utc: str) -> int:
 
 def generate_position(lat: float, lon: float):
     """Puts lat and lon in a way GeoRedis likes"""
-    return f"{lat} {lon}"
+    return f"{lat}, {lon}"
 
 
 def store_record(record):
