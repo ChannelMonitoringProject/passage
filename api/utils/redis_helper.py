@@ -7,12 +7,10 @@ from redis.commands.json.path import Path
 import redis.commands.search.aggregation as aggregations
 import redis.commands.search.reducers as reducers
 from redis.commands.search.field import TextField, NumericField, TagField, GeoField
-
-# from redis.commands.search.index_definition import IndexType
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
-
 from redis.commands.search.query import Query
 import redis.exceptions
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,7 +26,6 @@ REDIS_BOAT_POSITION_REPORT_INDEX = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_INDEX", "position_reports_index"
 )
 
-# r = redis.Redis(decode_responses=True)
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
 
 
@@ -57,6 +54,7 @@ def create_index_if_missing():
 
 
 def get_positioning_averages(start_time, end_time):
+    raise NotImplementedError
     query = ""
     search = Search(r, index_name=REDIS_BOAT_POSITION_REPORT_INDEX)
     request = aggregations.AggregateRequest(query)
