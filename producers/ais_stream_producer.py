@@ -54,7 +54,7 @@ def on_close(ws, close_status_code, close_msg):
 
 def main():
     logging.info("Polling for AISStream events")
-    logging.info("Pushing {KAFKA_AIS_TOPIC} events to Kafka host {KAFKA_HOST}")
+    logging.info(f"Pushing {KAFKA_AIS_TOPIC} events to Kafka host {KAFKA_HOST}")
     url = "wss://stream.aisstream.io/v0/stream"
     ws = websocket.WebSocketApp(
         url,

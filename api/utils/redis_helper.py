@@ -66,13 +66,12 @@ def get_ais_state(start: int = 0, end: int = 3154118400):
     q = f"@timestamp:[{start} {end}]"
     req = aggregations.AggregateRequest(q)
     req = req.load(*["__key", "@mmsi", "@name", "@timestamp", "position"])
-    # req = req.group_by(["@mmsi", "@name"], reducers.max("timestamp").alias("last_seen"))
+    # TODO, this may not return the last known position, check!!!
     req = req.group_by(
         ["@mmsi", "@name"],
         reducers.max("@timestamp").alias("ts"),
         reducers.first_value("@position").alias("pos"),
     )
-    req = req.group_by(["@mmsi", "@name", "@ts"])
     res = r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).aggregate(req).rows
     logging.debug("aggregated ais state to: ", res)
     return res
