@@ -12,14 +12,14 @@ def api_home():
     return jsonify({})
 
 
-@bp.route("/api/latest")
-def latest():
+@bp.route("/api/boats/latest")
+def latest(minutes=5):
     """latest state
 
     returns the last known position of each boat
     within the last 5 minutes
     """
-    from_time = datetime.now() - timedelta(minutes=5)
+    from_time = datetime.now() - timedelta(minutes=minutes)
     to_time = datetime.now()
     ret = get_ais_state(from_time.timestamp(), to_time.timestamp())
     return ret

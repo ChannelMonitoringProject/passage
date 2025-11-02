@@ -53,6 +53,19 @@ def create_index_if_missing():
         create_index()
 
 
+def lists_to_dicts(rows):
+    """convert redis rows format to dict
+    redis returns a list of lists like of key/value pairs
+    # [["key", "value", "key2", "value2", ...], [...], ...]
+    returns a list of dicts like [ {"key" : "value", ...}, {...}, ...]
+    """
+    ret = []
+    for row in rows:
+        d = {row[i]: row[i + 1] for i in range(0, len(row), 2)}
+        ret.append(d)
+    return ret
+
+
 def get_positioning_averages(start_time, end_time):
     raise NotImplementedError
     query = ""
@@ -64,12 +77,15 @@ def get_ais_state(start: int = 0, end: int = 3154118400):
     q = f"@timestamp:[{start} {end}]"
     req = aggregations.AggregateRequest(q)
     req = req.load(*["__key", "@mmsi", "@name", "@timestamp", "position"])
+    group_keys = ["@mmsi", "@name"]
     # TODO, this may not return the last known position, check!!!
     req = req.group_by(
-        ["@mmsi", "@name"],
+        group_keys,
         reducers.max("@timestamp").alias("ts"),
         reducers.first_value("@position").alias("pos"),
+        reducers.first_value("__key").alias("key"),
     )
-    res = r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).aggregate(req).rows
+    res = r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).aggregate(req)
     logging.debug("aggregated ais state to: ", res)
-    return res
+    ret = lists_to_dicts(res.rows)
+    return ret
