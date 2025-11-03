@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Boat Positions</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f8f9fa;
+        font-family: sans-serif;
+      }
+      #plot {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="plot"></div>
+    <script>
+      fetch("/api/graphs/boats")
+        .then(response => response.json())
+        .then(fig => {
+          Plotly.newPlot("plot", fig.data, fig.layout);
+        })
+        .catch(err => console.error("Failed to load plot:", err));
+    </script>
+  </body>
+</html>
