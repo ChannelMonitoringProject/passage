@@ -93,9 +93,7 @@ def to_defaultdict(list_of_dicts):
     return ret
 
 
-def get_state_trace():
-    boat_position_reports = get_state_boat_position_reports()
-    plot_data = to_defaultdict(boat_position_reports)
+def get_state_trace(plot_data):
     ret = go.Scattermapbox(
         name="state_trace",
         lat=plot_data["lat"],
@@ -104,19 +102,24 @@ def get_state_trace():
         marker=dict(
             size=12,
         ),
-        text=plot_data["ship_name"],
+        text=plot_data["name"],
         textposition="top right",
         showlegend=False,
     )
     return ret
 
 
-def plot_state():
+def plot_state(plot_data):
+    """Returns a figure
+
+    Arguments:
+        plot_data: plot data with at least "lat", "lon", {"lat":[...], "lon":[...]}
+    """
     arena = get_arena()
     center = get_center(arena)
     zoom = 10
 
-    state_trace = get_state_trace()
+    state_trace = get_state_trace(plot_data)
 
     fig = go.Figure()
     fig.add_trace(state_trace)

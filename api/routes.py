@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify
 import json
-from .plotter import plot_state
+from .plotter import plot_state, to_defaultdict
 from api.utils.redis_helper import get_ais_state
 
 bp = Blueprint("api", __name__)
@@ -22,6 +22,15 @@ def latest(minutes=5):
     from_time = datetime.now() - timedelta(minutes=minutes)
     to_time = datetime.now()
     ret = get_ais_state(from_time.timestamp(), to_time.timestamp())
+    return ret
+
+
+@bp.route("api/graphs/boats")
+def boats_graph():
+    state = latest()
+    plot_data = to_defaultdict(state)
+    plot = plot_state(plot_data)
+    ret = json.loads(plot.to_json())
     return ret
 
 
