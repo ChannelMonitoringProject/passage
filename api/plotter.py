@@ -79,6 +79,18 @@ def get_state_boat_position_reports():
     return state
 
 
+def to_lat_lon(list_of_dicts):
+    """
+    A helper to convert from the redis geo string "<LAT>, <LON>"
+    to dictionary key {"mmsi":..., "lat": <LAT>, "lon": <LON>, ...}
+    """
+    for idx, d in enumerate(list_of_dicts):
+        lat, lon = d["pos"].split(",")
+        list_of_dicts[idx]["lat"] = float(lat)
+        list_of_dicts[idx]["lon"] = float(lon)
+    return list_of_dicts
+
+
 def to_defaultdict(list_of_dicts):
     """
     helper to convert from list of dicts [{"mmsi":123, ...}, ... ]
