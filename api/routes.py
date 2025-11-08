@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, render_template
 import json
-from .plotter import plot_state, to_defaultdict, to_lat_lon
+from .plotter import plot_state, to_defaultdict, to_lat_lon, color_boats
 from api.utils.redis_helper import get_ais_state
 
 bp = Blueprint("api", __name__)
@@ -29,7 +29,7 @@ def latest(minutes=5):
 def boats_graph():
     state = latest()
     state = to_lat_lon(state)
-    # TODO, position is stored as "<LAT>, <LON>" string, needs to break into lat, lon
+    color_boats(state)
     plot_data = to_defaultdict(state)
     plot = plot_state(plot_data)
     ret = json.loads(plot.to_json())
@@ -48,4 +48,4 @@ def boat_positions_graphs():
 
 @bp.route("/boats")
 def boats_page():
-    return render_template("boats.html")
+    return render_template("boats_live.html")

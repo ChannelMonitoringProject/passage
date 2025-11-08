@@ -19,6 +19,9 @@ AIS_STREAM_ARENA = os.environ.get(
 
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
+uk_borderforce_boats: list[str] = ["boaty"]
+french_navy_boats: list[str] = ["mcboatface"]
+
 
 def get_arena():
     """
@@ -105,15 +108,23 @@ def to_defaultdict(list_of_dicts):
     return ret
 
 
+def color_boats(state):
+    for boat in state:
+        if boat["name"] in uk_borderforce_boats:
+            boat["color"] = "red"
+        elif boat["name"] in french_navy_boats:
+            boat["color"] = "blue"
+        else:
+            boat["color"] = "grey"
+
+
 def get_state_trace(plot_data):
     ret = go.Scattermapbox(
         name="state_trace",
         lat=plot_data["lat"],
         lon=plot_data["lon"],
         mode="markers+text",
-        marker=dict(
-            size=12,
-        ),
+        marker=dict(size=12),
         text=plot_data["name"],
         textposition="top right",
         showlegend=False,
