@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Boat Positions</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f8f9fa;
+        font-family: sans-serif;
+      }
+      #plot {
+        width: 100vw;
+        height: 100vh;
+      }
+      #status {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        background: rgba(255,255,255,0.8);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="plot"></div>
+    <div id="status">Loading…</div>
+
+    <script>
+      async function fetchPlotData() {
+        const res = await fetch("/api/graphs/boats");
+        return res.json();
+      }
+
+      let currentFig = null;
+      const status = document.getElementById("status");
+
+      async function initPlot() {
+        try {
+          const fig = await fetchPlotData();
+          currentFig = fig;
+          Plotly.newPlot("plot", fig.data, fig.layout);
+          status.textContent = "Last update: " + new Date().toLocaleTimeString();
+        } catch (err) {
+          console.error("Initial plot failed:", err);
+          status.textContent = "Error loading plot";
+        }
+      }
+
+      async function updatePlot() {
+        try {
+          const newFig = await fetchPlotData();
+
+          // Only update data/layout if changed
+          if (currentFig) {
+            Plotly.react("plot", newFig.data, newFig.layout);
+          } else {
+            Plotly.newPlot("plot", newFig.data, newFig.layout);
+          }
+
+          currentFig = newFig;
+          status.textContent = "Last update: " + new Date().toLocaleTimeString();
+        } catch (err) {
+          console.error("Plot update failed:", err);
+          status.textContent = "Update error";
+        }
+      }
+
+      // Initialize once, then update every 5 seconds
+      initPlot();
+      setInterval(updatePlot, 5000);
+    </script>
+  </body>
+</html>

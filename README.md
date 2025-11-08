@@ -43,8 +43,8 @@ pip install -r requirements.txt
 ```
 You can use the kafka-ui by browsing to http://localhost:8080/ui/clusters/ais/all-topics
 
-you can run the flask appliction by running 
-`flask --app api`
+you can run the flask application by running 
+`FLASK_APP=api:create_app flask run`
 
 ## Producers
 

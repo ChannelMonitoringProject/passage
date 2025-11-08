@@ -19,6 +19,9 @@ AIS_STREAM_ARENA = os.environ.get(
 
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
+uk_borderforce_boats: list[str] = ["boaty"]
+french_navy_boats: list[str] = ["mcboatface"]
+
 
 def get_arena():
     """
@@ -54,9 +57,9 @@ def get_state():
     """
     ret = []
     print(redis_client.keys())
-
-    # state = redis_helper.get_ais_state()
-    state = redis_client.scan_iter("ais.updates.boat_position_reports:*")
+    state = redis_helper.get_ais_state()
+    print(state)
+    # state = redis_client.scan_iter("ais.updates.boat_position_reports:*")
     for state_entry_key in state:
         state_entry = redis_client.json().get(state_entry_key)
         ret.append(state_entry)
@@ -68,13 +71,27 @@ def get_state_boat_position_reports():
     Get BoatPositionReports from redis state
     """
     ret = []
-    state = redis_client.scan_iter(REDIS_BOAT_POSITION_REPORT_TOPIC + ":*")
+    # state = redis_client.scan_iter(REDIS_BOAT_POSITION_REPORT_TOPIC + ":*")
+    state = redis_helper.get_ais_state()
     print(state)
-    for position_report_key in state:
-        print(position_report_key)
-        position_report = redis_client.json().get(position_report_key)
-        ret.append(position_report)
-    return ret
+    # for position_report_key in state:
+    #    print(position_report_key)
+    #     position_report = redis_client.json().get(position_report_key)
+    #     ret.append(position_report)
+    # return ret
+    return state
+
+
+def to_lat_lon(list_of_dicts):
+    """
+    A helper to convert from the redis geo string "<LAT>, <LON>"
+    to dictionary key {"mmsi":..., "lat": <LAT>, "lon": <LON>, ...}
+    """
+    for idx, d in enumerate(list_of_dicts):
+        lat, lon = d["pos"].split(",")
+        list_of_dicts[idx]["lat"] = float(lat)
+        list_of_dicts[idx]["lon"] = float(lon)
+    return list_of_dicts
 
 
 def to_defaultdict(list_of_dicts):
@@ -91,30 +108,41 @@ def to_defaultdict(list_of_dicts):
     return ret
 
 
-def get_state_trace():
-    boat_position_reports = get_state_boat_position_reports()
-    plot_data = to_defaultdict(boat_position_reports)
+def color_boats(state):
+    for boat in state:
+        if boat["name"] in uk_borderforce_boats:
+            boat["color"] = "red"
+        elif boat["name"] in french_navy_boats:
+            boat["color"] = "blue"
+        else:
+            boat["color"] = "grey"
+
+
+def get_state_trace(plot_data):
     ret = go.Scattermapbox(
         name="state_trace",
         lat=plot_data["lat"],
         lon=plot_data["lon"],
         mode="markers+text",
-        marker=dict(
-            size=12,
-        ),
-        text=plot_data["ship_name"],
+        marker=dict(size=12),
+        text=plot_data["name"],
         textposition="top right",
         showlegend=False,
     )
     return ret
 
 
-def plot_state():
+def plot_state(plot_data):
+    """Returns a figure
+
+    Arguments:
+        plot_data: plot data with at least "lat", "lon", {"lat":[...], "lon":[...]}
+    """
     arena = get_arena()
     center = get_center(arena)
     zoom = 10
 
-    state_trace = get_state_trace()
+    state_trace = get_state_trace(plot_data)
 
     fig = go.Figure()
     fig.add_trace(state_trace)
