@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.13
 RUN mkdir -p /srv/kafka_producers/
 WORKDIR /srv/kafka_producers/
 COPY ./producers/ais_stream_producer.py .
