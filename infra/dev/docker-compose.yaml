@@ -95,7 +95,7 @@ services:
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     healthcheck:
@@ -110,7 +110,7 @@ services:
     hostname: redis
     image: redis/redis-stack
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 10s
@@ -143,9 +143,9 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_NUM_PARTITIONS: 3
     ports:
-      - 9091:9091
-      - 9092:9092
-      - 9093:9093
+      - 127.0.0.1:9091:9091
+      - 127.0.0.1:9092:9092
+      - 127.0.0.1:9093:9093
 
     healthcheck:
         test: "/opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka:9093 || exit 1"
@@ -158,7 +158,7 @@ services:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
-      - 8082:8080
+      - 127.0.0.1:8082:8080
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
       KAFKA_CLUSTERS_0_NAME: ais
@@ -211,7 +211,7 @@ services:
     <<: *airflow-common
     command: api-server
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
       interval: 30s
@@ -410,7 +410,7 @@ services:
     profiles:
       - flower
     ports:
-      - "5555:5555"
+      - "127.0.0.1:5555:5555"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
       interval: 30s
@@ -423,5 +423,17 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  passage-api:
+    container_name: api
+    hostname: api
+    environment:
+      REDIS_HOST: redis
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:5000:80"
+
 volumes:
   postgres-db-volume:
+
