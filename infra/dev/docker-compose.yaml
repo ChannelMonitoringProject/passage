@@ -426,11 +426,13 @@ services:
   passage-api:
     container_name: api
     hostname: api
+    environment:
+      REDIS_HOST: redis
     build:
       context: ../../api
       dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:5000:80"
 
 volumes:
   postgres-db-volume:
