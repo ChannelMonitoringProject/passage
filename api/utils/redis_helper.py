@@ -15,9 +15,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+if "REDIS_PASSWORD" not in os.environ:
+    exit("Set environment variable REDIS_PASSWORD")
+
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 REDIS_DB = int(os.environ.get("REDIS_DB", 0))
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD")
+
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
@@ -26,7 +31,13 @@ REDIS_BOAT_POSITION_REPORT_INDEX = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_INDEX", "position_reports_index"
 )
 
-r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
+r = redis.StrictRedis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    db=REDIS_DB,
+    password=REDIS_PASSWORD,
+    decode_responses=True,
+)
 
 
 def create_index():
