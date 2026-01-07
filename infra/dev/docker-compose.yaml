@@ -57,7 +57,8 @@ x-airflow-common:
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
-    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    # AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__CELERY__BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -218,6 +219,8 @@ services:
     command: api-server
     ports:
       - "127.0.0.1:8080:8080"
+    env_file:
+      ./.env
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
       interval: 30s
@@ -272,10 +275,13 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    env_file:
+      ./.env
     environment:
       <<: *airflow-common-env
       # Required to handle warm shutdown of the celery workers properly
       # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       DUMB_INIT_SETSID: "0"
     restart: always
     depends_on:
@@ -432,6 +438,8 @@ services:
   passage-api:
     container_name: api
     hostname: api
+    env_file:
+      ./.env
     environment:
       REDIS_HOST: redis
     build:
