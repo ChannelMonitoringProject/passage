@@ -1,3 +1,6 @@
+import os
+
+os.environ["REDIS_PASSWORD"] = ""
 import pytest
 from unittest.mock import Mock, patch
 from consumers import ais_stream_redis_consumer
@@ -15,7 +18,7 @@ def test_time_utc_string_to_unit_time():
 
 
 def test_generate_position():
-    expected = "1.23 4.56"
+    expected = "1.23, 4.56"
     assert generate_position(1.23, 4.56) == expected
 
 

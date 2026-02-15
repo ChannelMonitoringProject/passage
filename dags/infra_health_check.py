@@ -5,6 +5,7 @@ from datetime import datetime
 import logging
 import psycopg2
 import redis
+from api.redis_helper import get_redis
 from kafka import KafkaConsumer
 
 

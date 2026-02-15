@@ -15,9 +15,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if "REDIS_PASSWORD" not in os.environ:
-    exit("Set environment variable REDIS_PASSWORD")
-
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 REDIS_DB = int(os.environ.get("REDIS_DB", 0))
@@ -31,16 +28,23 @@ REDIS_BOAT_POSITION_REPORT_INDEX = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_INDEX", "position_reports_index"
 )
 
-r = redis.StrictRedis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    db=REDIS_DB,
-    password=REDIS_PASSWORD,
-    decode_responses=True,
-)
+
+def get_redis():
+    if "REDIS_PASSWORD" not in os.environ:
+        exit("Set environment variable REDIS_PASSWORD")
+
+    r = redis.Redis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        db=REDIS_DB,
+        password=REDIS_PASSWORD,
+        decode_responses=True,
+    )
+
+    return r
 
 
-def create_index():
+def create_index(r: redis.Redis = get_redis()):
     schema = [
         NumericField("$.MetaData.MMSI", as_name="mmsi"),
         TextField("$.MetaData.ShipName", as_name="name"),
@@ -56,12 +60,12 @@ def create_index():
     )
 
 
-def create_index_if_missing():
+def create_index_if_missing(r: redis.Redis = get_redis()):
     try:
         r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).info()
     except redis.exceptions.ResponseError as rerr:
         logging.info(f"No index {REDIS_BOAT_POSITION_REPORT_INDEX} found, creating")
-        create_index()
+        create_index(r)
 
 
 def lists_to_dicts(rows):
@@ -84,7 +88,7 @@ def get_positioning_averages(start_time, end_time):
     request = aggregations.AggregateRequest(query)
 
 
-def get_ais_state(start: int = 0, end: int = 3154118400):
+def get_ais_state(start: int = 0, end: int = 3154118400, r: redis.Redis = get_redis()):
     q = f"@timestamp:[{start} {end}]"
     req = aggregations.AggregateRequest(q)
     req = req.load(*["__key", "@mmsi", "@name", "@timestamp", "position"])

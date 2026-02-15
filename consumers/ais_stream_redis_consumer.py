@@ -1,10 +1,11 @@
 """ Consumers events from kafka and update redis """
 import os
+import json
 import datetime
 import uuid
 import logging
+import redis
 from kafka import KafkaConsumer
-import json, redis
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,9 +29,7 @@ REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get(
     "REDIS_BOAT_POSITION_REPORT_TOPIC", "ais.updates.boat_position_reports"
 )
 
-r = redis.StrictRedis(
-    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD
-)
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD)
 
 consumer = KafkaConsumer(
     KAFKA_AIS_TOPIC,

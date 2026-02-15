@@ -1,13 +1,14 @@
 from flask import Flask
 from . import routes
-from api.utils.redis_helper import create_index_if_missing
+from api.utils.redis_helper import get_redis, create_index_if_missing
 
 
 def create_app():
     app = Flask(__name__)
+    redis_client = get_redis()
     from .routes import bp as api_bp
 
-    create_index_if_missing()
+    create_index_if_missing(redis_client)
 
     app.register_blueprint(api_bp, url_prefix="/")
 

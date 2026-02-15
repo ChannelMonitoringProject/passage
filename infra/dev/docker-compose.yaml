@@ -109,8 +109,8 @@ services:
   redis:
     container_name: redis
     hostname: redis
-    # image: redis/redis-stack
-    image: redis
+    image: redis/redis-stack
+    # image: redis
     command:
       - /bin/sh
       - -c

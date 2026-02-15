@@ -9,25 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if "REDIS_PASSWORD" not in os.environ:
-    exit("Set environment variable REDIS_PASSWORD")
-
-REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-REDIS_DB = int(os.environ.get("REDIS_DB", 0))
-REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "redis_password123")
 
 REDIS_BOAT_POSITION_REPORT_TOPIC = os.environ.get("REDIS_BOAT_POSITION_REPORT_TOPIC")
 AIS_STREAM_ARENA = os.environ.get(
     "AIS_STREAM_ARENA", "[[[51.385, 0.909], [50.678, 2.667]]]"
-)
-
-redis_client = redis.StrictRedis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    db=REDIS_DB,
-    password=REDIS_PASSWORD,
-    decode_responses=True,
 )
 uk_borderforce_boats: list[str] = ["boaty"]
 french_navy_boats: list[str] = ["mcboatface"]
@@ -61,7 +46,7 @@ def get_center(arena_bounds):
     return center
 
 
-def get_state():
+def get_state(redis_client: redis.Redis = redis_helper.get_redis()):
     """
     Get all state elements from redis
     """
@@ -76,7 +61,9 @@ def get_state():
     return ret
 
 
-def get_state_boat_position_reports():
+def get_state_boat_position_reports(
+    redis_client: redis.Redis = redis_helper.get_redis(),
+):
     """
     Get BoatPositionReports from redis state
     """
