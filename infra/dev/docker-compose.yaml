@@ -431,7 +431,8 @@ services:
     container_name: api
     hostname: api
     environment:
-      REDIS_HOST: redis
+      - REDIS_HOST: redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     build:
       context: ../../api
       dockerfile: Dockerfile
