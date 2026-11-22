@@ -1,3 +1,4 @@
+import os
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
@@ -25,7 +26,18 @@ def check_postgres():
 
 def check_redis():
     try:
-        r = redis.Redis(host="redis", port=6379)
+        logging.info("checking Redis connection")
+
+        REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+        REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+        REDIS_DB = int(os.environ.get("REDIS_DB", 0))
+        REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "redis_password123")
+        logging.debug(
+            f"Checking connection to host {REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+        )
+        r = redis.StrictRedis(
+            host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD
+        )
         r.ping()
         logging.info("Redis connection successful")
     except Exception as e:
