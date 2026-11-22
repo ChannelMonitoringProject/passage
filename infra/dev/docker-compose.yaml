@@ -97,7 +97,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - postgres-db-volume:/var/lib/postgresql/
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
@@ -108,21 +108,18 @@ services:
   redis:
     container_name: redis
     hostname: redis
-    # image: redis/redis-stack
-    image: redis
-    command:
-      - /bin/sh
-      - -c
-      - redis-server --requirepass ${REDIS_PASSWORD}
+    image: redis:8.10
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
 
     ports:
       - "127.0.0.1:6379:6379"
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep PONG"]
       interval: 10s
-      timeout: 30s
-      retries: 50
-      start_period: 30s
+      timeout: 5s
+      retries: 5
     restart: always
 
   kafka:
@@ -213,6 +210,7 @@ services:
       LOGLEVEL: DEBUG
       KAFKA_AIS_TOPIC: ${KAFKA_AIS_TOPIC}
       REDIS_BOAT_POSITION_REPORT_TOPIC: ${REDIS_BOAT_POSITION_REPORT_TOPIC}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
   airflow-apiserver:
     <<: *airflow-common
     command: api-server
@@ -439,6 +437,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "127.0.0.1:5000:80"
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
 
 volumes:
   postgres-db-volume:

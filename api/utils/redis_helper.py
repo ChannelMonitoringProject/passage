@@ -57,6 +57,13 @@ def create_index():
 
 
 def create_index_if_missing():
+    logging.info(f"Redis connection: {r.connection_pool.connection_kwargs}")
+    info = r.info("server")
+    logging.info(
+        f"Redis version={info.get('redis_version')} os={info.get('os')} "
+        f"mode={info.get('redis_mode')} container_id={info.get('run_id')}"
+    )
+
     try:
         r.ft(REDIS_BOAT_POSITION_REPORT_INDEX).info()
     except redis.exceptions.ResponseError as rerr:
